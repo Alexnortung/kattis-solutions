@@ -64,10 +64,15 @@ function testrun() {
 }
 
 function compileRunRust() {
-    echo "compiling rust file to binary"
     BINARYPATH="$BINDIR/$NAME-rust"
-    rustc "$file" -o "$BINARYPATH"
-    testrun "$BINARYPATH" "rust"
+    COMPILECOMMAND="rustc $PROBLEMDIR/src/$NAME.rs -o $BINARYPATH"
+    compileRun "rust" "$COMPILECOMMAND"
+}
+
+function compileRunCPP() {
+    BINARYPATH="$BINDIR/$NAME-cpp"
+    COMPILECOMMAND="g++ $PROBLEMDIR/src/$NAME.cpp -o $BINARYPATH"
+    compileRun "cpp" "$COMPILECOMMAND"
 }
 
 function runPython() {
@@ -88,13 +93,12 @@ if [ "$TYPE" == "all" ]; then
     find "$PROBLEMDIR/src" -type f -print0 | while read -d $'\0' file
     do
         extension="${file##*.}"
-        if [ "$extension" == "rs" ] 
-        then
+        if [ "$extension" == "rs" ]; then
             compileRunRust
-        elif [ "$extension" == "py" ] 
-        then
-            #TYPES=("${TYPES[@]}" "python")
+        elif [ "$extension" == "py" ]; then
             runPython
+        elif [ "$extension" == "cpp" ]; then
+            compileRunCPP
         fi
         #printf "%s " "${TYPES[@]}"
     done
@@ -102,4 +106,6 @@ elif [ "$TYPE" == "rust" ]; then
     compileRunRust
 elif [ "$TYPE" == "python" ]; then
     runPython
+elif [ "$TYPE" == "cpp" ]; then
+    compileRunCPP
 fi
