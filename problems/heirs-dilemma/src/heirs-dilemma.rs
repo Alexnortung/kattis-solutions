@@ -17,7 +17,7 @@ fn num_to_num_vec(num: u32) -> Vec<u32> {
         num_vec.push(digit);
         temp_num = temp_num / 10;
     }
-    num_vec
+    num_vec.iter().rev().cloned().collect()
 }
 
 fn next_valid(num: u32) -> Option<u32> {
@@ -35,6 +35,7 @@ fn next_valid(num: u32) -> Option<u32> {
     let mut final_num_vec = Vec::with_capacity(6);
     for i in (0..num_vec.len()).rev() {
         let digit = num_vec[i];
+        //println!("checking digit {}", digit);
         if final_num_vec.contains(&digit) {
             match possible_num.iter().position(|&x| x > digit ) {
                 Some(pos) => {
@@ -50,7 +51,7 @@ fn next_valid(num: u32) -> Option<u32> {
                 },
                 None => {
                     // remove all digits from the end of final_num_vec until digit is reached (also removing that)
-                    // if final_num_vec is empty we are finished, because that means the first digit was 9
+                    // if final_num_vec is empty we are finished, because that means the first digit was 9 - NOT TRUE
                     // then create a new possible_num vec where it ignores the numbers in final_num_vec
                     while final_num_vec[final_num_vec.len() - 1] != digit {
                         final_num_vec.remove(final_num_vec.len() - 1);
@@ -123,7 +124,7 @@ fn main() -> io::Result<()> {
                     break;
                 }
                 value = next_valid(num);
-                //println!("{} is valid", num);
+                println!("{} is valid", num);
                 combs += 1;
             },
             None => break,

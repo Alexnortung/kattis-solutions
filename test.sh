@@ -29,20 +29,21 @@ if [ ! -d "$PROBLEMDIR" ]; then
 fi
 
 function testrun() {
-    #PROBLEMDIR=$1
-    BINARYPATH=$1 # or command to run (e.g. python: python filename)
-    TYPE=$2
+    PROBLEMDIR=$1
+    BINARYPATH=$2
+    TYPE=$3
     echo "running test for $TYPE"
     find "$PROBLEMDIR/testfiles" -type f -regex ".*\.in" -print0 | while read -d $'\0' file
     do
         FILENAME="${file%.*}"
-        OUTVALUE=`cat "$file" | $BINARYPATH`
+        OUTVALUE=`cat "$file" | "$BINARYPATH"` # value after program has run
         # compare both files
         echo "$OUTVALUE" | while read comparefile1 <"$FILENAME.out" && read comparefile2
         do
             if [ "$comparefile1" != "$comparefile2" ] 
             then
                 printf "❌\ngot: %s expected: %s\n" "$comparefile2" "$comparefile1"
+                echo "failed at $FILENAME files"
                 echo "Showing diff"
                 echo `echo "$OUTVALUE" | diff "$FILENAME.out" -`
                 exit 1
@@ -50,31 +51,25 @@ function testrun() {
             # is same
         done
         # print check when file is completed
-        printf "✅ "
+        if [ "$?" == 1 ]; then
+            exit 1
+        else
+            printf "✅ "
+        fi
     done
     if [ "$?" == "0" ]
     then
         printf "\nAll tests passed for $TYPE\n"
-        echo "-------------"
     fi
 }
 
 function compileRunRust() {
-    #echo "compiling rust file to binary"
+    echo "compiling rust file to binary"
     BINARYPATH="$BINDIR/$NAME-rust"
-    COMPILECOMMAND="rustc $PROBLEMDIR/src/$NAME.rs -o $BINARYPATH"
-    #testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
-    compileRun "rust" "$COMPILECOMMAND"
+    rustc "$file" -o "$BINARYPATH"
+    testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
 }
 
-function compileRun() {
-    TYPE=$1
-    COMPILECOMMAND=$2
-    BINARYPATH="$BINDIR/$NAME-$TYPE"
-    echo "compiling $TYPE file to binary"
-    `$COMPILECOMMAND`
-    testrun "$BINARYPATH" "$TYPE"
-}
 
 
 
@@ -86,11 +81,10 @@ if [ "$TYPE" == "all" ]; then
         if [ "$extension" == "rs" ] 
         then
             # compile
-            #echo "compiling rust file to binary"
-            #BINARYPATH="$BINDIR/$NAME-rust"
-            #rustc "$file" -o "$BINARYPATH"
-            #testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
-            compileRunRust
+            echo "compiling rust file to binary"
+            BINARYPATH="$BINDIR/$NAME-rust"
+            rustc "$file" -o "$BINARYPATH"
+            testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
         elif [ "$extension" == "py" ] 
         then
             #TYPES=("${TYPES[@]}" "python")
@@ -98,8 +92,4 @@ if [ "$TYPE" == "all" ]; then
         fi
         #printf "%s " "${TYPES[@]}"
     done
-elif [ "$TYPE" == "rust" ]; then
-    compileRunRust
-elif [ "$TYPE" == "python" ]; then
-    testrun "python $PROBLEMDIR/src/$NAME.py" "python"
 fi
