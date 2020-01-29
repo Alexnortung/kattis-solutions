@@ -29,14 +29,13 @@ if [ ! -d "$PROBLEMDIR" ]; then
 fi
 
 function testrun() {
-    PROBLEMDIR=$1
-    BINARYPATH=$2
-    TYPE=$3
+    BINARYPATH=$1 # or command to run (e.g. python: python filename)
+    TYPE=$2
     echo "running test for $TYPE"
     find "$PROBLEMDIR/testfiles" -type f -regex ".*\.in" -print0 | while read -d $'\0' file
     do
         FILENAME="${file%.*}"
-        OUTVALUE=`cat "$file" | "$BINARYPATH"` # value after program has run
+        OUTVALUE=`cat "$file" | $BINARYPATH` # value after program has run
         # compare both files
         echo "$OUTVALUE" | while read comparefile1 <"$FILENAME.out" && read comparefile2
         do
@@ -61,17 +60,28 @@ function testrun() {
     then
         printf "\nAll tests passed for $TYPE\n"
     fi
+    echo "-------------"
 }
 
 function compileRunRust() {
     echo "compiling rust file to binary"
     BINARYPATH="$BINDIR/$NAME-rust"
     rustc "$file" -o "$BINARYPATH"
-    testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
+    testrun "$BINARYPATH" "rust"
 }
 
+function runPython() {
+    testrun "python $PROBLEMDIR/src/$NAME.py" "python"
+}
 
-
+function compileRun() {
+    TYPE=$1
+    COMPILECOMMAND=$2
+    BINARYPATH="$BINDIR/$NAME-$TYPE"
+    echo "compiling $TYPE file to binary"
+    `$COMPILECOMMAND`
+    testrun "$BINARYPATH" "$TYPE"
+}
 
 if [ "$TYPE" == "all" ]; then
     # find which filytypes exists in the directory.
@@ -80,16 +90,16 @@ if [ "$TYPE" == "all" ]; then
         extension="${file##*.}"
         if [ "$extension" == "rs" ] 
         then
-            # compile
-            echo "compiling rust file to binary"
-            BINARYPATH="$BINDIR/$NAME-rust"
-            rustc "$file" -o "$BINARYPATH"
-            testrun "$PROBLEMDIR" "$BINARYPATH" "rust"
+            compileRunRust
         elif [ "$extension" == "py" ] 
         then
             #TYPES=("${TYPES[@]}" "python")
-            echo "is python"
+            runPython
         fi
         #printf "%s " "${TYPES[@]}"
     done
+elif [ "$TYPE" == "rust" ]; then
+    compileRunRust
+elif [ "$TYPE" == "python" ]; then
+    runPython
 fi
