@@ -36,25 +36,18 @@ function testrun() {
     do
         FILENAME="${file%.*}"
         OUTVALUE=`cat "$file" | $BINARYPATH` # value after program has run
+        CORRECTOUTVALUE=`cat "$FILENAME".out`
         # compare both files
-        echo "$OUTVALUE" | while read comparefile1 <"$FILENAME.out" && read comparefile2
-        do
-            if [ "$comparefile1" != "$comparefile2" ] 
-            then
-                printf "❌\ngot: %s expected: %s\n" "$comparefile2" "$comparefile1"
-                echo "failed at $FILENAME files"
-                echo "Showing diff"
-                echo `echo "$OUTVALUE" | diff "$FILENAME.out" -`
-                exit 1
-            fi
-            # is same
-        done
-        # print check when file is completed
-        if [ "$?" == 1 ]; then
+        if [ "$OUTVALUE" != "$CORRECTOUTVALUE" ]
+        then
+            printf "❌\ngot: %s expected: %s\n" "$OUTVALUE" "$CORRECTOUTVALUE"
+            echo "failed at $FILENAME files"
+            echo "Showing diff"
+            echo `echo "$OUTVALUE" | diff "$FILENAME.out" -`
             exit 1
-        else
-            printf "✅ "
         fi
+        # print check when file is completed
+        printf "✅ "
     done
     if [ "$?" == "0" ]
     then
