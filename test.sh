@@ -72,6 +72,10 @@ function runPython() {
     testrun "python $PROBLEMDIR/src/$NAME.py" "python"
 }
 
+function runPHP() {
+    testrun "php $PROBLEMDIR/src/$NAME.php" "php"
+}
+
 function compileRun() {
     TYPE=$1
     COMPILECOMMAND=$2
@@ -92,6 +96,8 @@ if [ "$TYPE" == "all" ]; then
             runPython
         elif [ "$extension" == "cpp" ]; then
             compileRunCPP
+        elif [ "$extension" == "php" ]; then
+            runPHP
         fi
         #printf "%s " "${TYPES[@]}"
     done
@@ -101,4 +107,6 @@ elif [ "$TYPE" == "python" ]; then
     runPython
 elif [ "$TYPE" == "cpp" ]; then
     compileRunCPP
+elif [ "$TYPE" == "php" ]; then
+    runPHP
 fi
