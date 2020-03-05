@@ -1,16 +1,14 @@
 use std::io;
 use std::vec;
 
-const MAXDEPTH: usize = 10;
-
 #[derive(Copy, Clone)]
 struct Char {
     character: char,
     visited: bool,
 }
 
-fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (usize, usize), depth: usize) -> bool {
-    if chars_left.len() <= 0 || depth == MAXDEPTH + 1 {
+fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (usize, usize)) -> bool {
+    if chars_left.len() <= 0 {
         return true;
     }
     let (x,y) = position;
@@ -24,7 +22,7 @@ fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (
     if x > 0 && 
         board[x-1][y].character == chars_left[0] && 
         !board[x-1][y].visited && 
-        recurse_path(&mut board, &chars_left[1..], (x-1, y), depth+1) {
+        recurse_path(&mut board, &chars_left[1..], (x-1, y)) {
             board[x][y].visited = false;
             return true;
     }
@@ -32,7 +30,7 @@ fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (
     if y > 0 && 
         board[x][y-1].character == chars_left[0] && 
         !board[x][y-1].visited && 
-        recurse_path(&mut board, &chars_left[1..], (x, y-1), depth+1) {
+        recurse_path(&mut board, &chars_left[1..], (x, y-1)) {
             board[x][y].visited = false;
             return true;
     }
@@ -40,7 +38,7 @@ fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (
     if x < width - 1 && 
         board[x+1][y].character == chars_left[0] && 
         !board[x+1][y].visited && 
-        recurse_path(&mut board, &chars_left[1..], (x+1, y), depth+1) {
+        recurse_path(&mut board, &chars_left[1..], (x+1, y)) {
             board[x][y].visited = false;
             return true;
     }
@@ -48,7 +46,7 @@ fn recurse_path(mut board: &mut Vec<Vec<Char>>, chars_left: &[char], position: (
     if y < height - 1 && 
         board[x][y+1].character == chars_left[0] && 
         !board[x][y+1].visited && 
-        recurse_path(&mut board, &chars_left[1..], (x, y+1), depth+1) {
+        recurse_path(&mut board, &chars_left[1..], (x, y+1)) {
             board[x][y].visited = false;
             return true;
     }
@@ -104,7 +102,7 @@ fn main() {
                 // println!("x:{} y:{}", x, y);
 
                 if first_char == board[x][y].character {
-                    found = recurse_path(&mut board, &chars[1..], (x,y), 0);
+                    found = recurse_path(&mut board, &chars[1..], (x,y));
                 }
                 if found {
                     break;
