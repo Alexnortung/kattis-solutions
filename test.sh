@@ -36,15 +36,15 @@ function testrun() {
     do
         FILENAME="${file%.*}"
         OUTVALUE=`cat "$file" | $BINARYPATH` # value after program has run
-        CORRECTOUTVALUE=`cat "$FILENAME".out`
-        echo "$OUTVALUE" | diff -q --strip-trailing-cr "$FILENAME.out" -
+        CORRECTOUTVALUE=`cat "$FILENAME".ans`
+        echo "$OUTVALUE" | diff -q --strip-trailing-cr "$FILENAME.ans" -
         # check if the diff was successful or not
         if [ "$?" != "0" ]
         then
             printf "❌\ngot: \n%s \nexpected: \n%s\n" "$OUTVALUE" "$CORRECTOUTVALUE"
             echo "failed at $FILENAME files"
             echo "Showing diff"
-            echo "$OUTVALUE" | diff -y --strip-trailing-cr "$FILENAME.out" -
+            echo "$OUTVALUE" | diff -y --strip-trailing-cr "$FILENAME.ans" -
             exit 1
         fi
         # print check when file is completed
