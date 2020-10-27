@@ -41,7 +41,7 @@ fn main() {
         let y_2 = vec_vals[1];
         let x_3 = vec_vals[2];
         let y_3 = vec_vals[3];
-        let mut min_area = usize::MAX;
+        let mut min_area = std::usize::MAX;
         for i in 0..4 {
             let (x_2, y_2) = if i % 2 == 0 { (x_2, y_2) } else { (y_2, x_2) };
             // let start_x_2 = i < 2 ? main_x : 0;
