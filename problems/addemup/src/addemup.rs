@@ -1,7 +1,7 @@
 use std::io;
 
-fn next_iter(iter: &mut std::str::SplitWhitespace) -> usize {
-    return iter.next().unwrap().parse::<usize>().unwrap();
+fn next_iter(iter: &mut std::str::SplitWhitespace) -> i32 {
+    return iter.next().unwrap().parse::<i32>().unwrap();
 }
 
 fn main() {
@@ -15,11 +15,12 @@ fn main() {
     io::stdin().read_line(&mut line)
         .expect("Could not read line");
     let mut splitted_line = line.trim().split_whitespace();
-    let mut all_numbers: Vec<usize> = Vec::with_capacity(n * 2);
+    let mut all_numbers: Vec<i32> = Vec::with_capacity((n * 2) as usize);
     for _ in 0..n {
         // add numbers to vector
         let s_next_num = splitted_line.next().unwrap();
-        let num = s_next_num.parse::<usize>().unwrap();
+        let num = s_next_num.parse::<i32>().unwrap();
+        let find_num = s - num;
         let mut char_iter = s_next_num.chars();
         let can_be_flipped = char_iter.all(|x| x <= '2' || (x >= '5' && x <= '6') || x >= '8');
         if can_be_flipped {
@@ -30,24 +31,41 @@ fn main() {
                     _ => x,
                 })
                 .collect::<String>();
-            let flipped_num = flipped.parse::<usize>().unwrap();
-            for i in 0..all_numbers.len() {
-                if flipped_num + all_numbers[i] == s || num + all_numbers[i] == s {
+            let flipped_num = flipped.parse::<i32>().unwrap();
+            let find_flip = s - flipped_num;
+            match all_numbers.binary_search(&find_flip) {
+                Ok(_) => {
                     println!("YES");
                     return;
-                }
+                },
+                Err(_) => (),
             }
-            all_numbers.push(flipped_num);
-        } else {
-            for i in 0..all_numbers.len() {
-                if num + all_numbers[i] == s {
+            match all_numbers.binary_search(&find_num) {
+                Ok(_) => {
                     println!("YES");
                     return;
-                }
+                },
+                Err(_) => (),
+            }
+            match all_numbers.binary_search(&flipped_num) {
+                Ok(_) => (),
+                Err(pos) => all_numbers.insert(pos, flipped_num),
+            }
+        } else {
+            match all_numbers.binary_search(&find_num) {
+                Ok(_) => {
+                    println!("YES");
+                    return;
+                },
+                Err(_) => (),
             }
         }
 
-        all_numbers.push(num);
+        // all_numbers.push(num);
+        match all_numbers.binary_search(&num) {
+            Ok(_) => (),
+            Err(pos) => all_numbers.insert(pos, num),
+        }
     }
     println!("NO");
 }
