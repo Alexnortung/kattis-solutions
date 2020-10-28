@@ -20,12 +20,6 @@ fn main() {
         // add numbers to vector
         let s_next_num = splitted_line.next().unwrap();
         let num = s_next_num.parse::<usize>().unwrap();
-        for i in 0..all_numbers.len() {
-            if num + all_numbers[i] == s {
-                println!("YES");
-                return;
-            }
-        }
         let mut char_iter = s_next_num.chars();
         let can_be_flipped = char_iter.all(|x| x <= '2' || (x >= '5' && x <= '6') || x >= '8');
         if can_be_flipped {
@@ -38,13 +32,21 @@ fn main() {
                 .collect::<String>();
             let flipped_num = flipped.parse::<usize>().unwrap();
             for i in 0..all_numbers.len() {
-                if flipped_num + all_numbers[i] == s {
+                if flipped_num + all_numbers[i] == s || num + all_numbers[i] == s {
                     println!("YES");
                     return;
                 }
             }
             all_numbers.push(flipped_num);
+        } else {
+            for i in 0..all_numbers.len() {
+                if num + all_numbers[i] == s {
+                    println!("YES");
+                    return;
+                }
+            }
         }
+
         all_numbers.push(num);
     }
     println!("NO");
