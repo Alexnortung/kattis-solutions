@@ -7,7 +7,7 @@ fn parse_next(iter: &mut std::str::SplitWhitespace) -> usize {
 }
 
 fn main() {
-    let mut line = String::new();
+    let mut line = String::with_capacity(5);
     io::stdin().read_line(&mut line)
         .expect("Could not read line");
     let num_lines = line.trim().parse::<usize>().unwrap();
