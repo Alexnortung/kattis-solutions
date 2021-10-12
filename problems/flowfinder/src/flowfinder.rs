@@ -51,8 +51,6 @@ fn solve_zero_leafs(node: &mut Node) -> (usize, bool) {
         return (zero_leafs, false);
     }
     // it is possible to solve this
-
-    
     return (0, solve_tree(node));
 }
 
@@ -121,24 +119,6 @@ fn solve_tree(node: &mut Node) -> bool {
             node.solved = false;
             return false;
         },
-        //(_, true) => {
-        //    let sum = node.sum_children();
-        //    let zero_children_iter = node.children.iter_mut().filter(|child| child.flow == 0);
-        //    let zero_children: Vec<&mut Box<Node>> = zero_children_iter.collect();
-        //    //println!("{:?}", zero_children);
-        //    if diff_children_solved == zero_children.len() && node.flow - sum == zero_children.len() {
-        //        for mut child in zero_children {
-        //            child.flow = 1;
-        //            if !solve_tree(child) {
-        //                return false;
-        //            }
-        //            child.solved = true;
-        //        }
-        //        node.solved = true;
-        //        return true;
-        //    }
-        //    return false;
-        //},
         _ => return false,
     }
 }
@@ -179,13 +159,15 @@ fn main() {
         let node_pointer: *mut Node = &mut *boxed_node;
         unsafe {
             (*parent).children.push(boxed_node);
-            //let new_index = (*parent).children.len() - 1;
-            //let node_pointer: *mut Node = &mut ((*parent).children[new_index]);
             nodes.push(node_pointer);
         }
     }
 
     if !solve_tree(&mut boxed_root) {
+        if boxed_root.flow == 0 && boxed_root.children.len() == 0 {
+            println!("impossible");
+            return ();
+        }
         let (_, solved) = solve_zero_leafs(&mut boxed_root);
         if !solved || !boxed_root.solved {
             println!("impossible");
