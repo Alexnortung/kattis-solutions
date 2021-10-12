@@ -1,5 +1,6 @@
 use std::io;
 
+#[derive(Debug)]
 struct Node {
     flow: usize,
     children: Vec<Box<Node>>,
@@ -18,6 +19,41 @@ impl Node {
 
 fn parse_next(iter: &mut std::str::SplitWhitespace) -> usize {
     return iter.next().unwrap().parse::<usize>().unwrap();
+}
+
+// returns the number of zero leafs
+fn solve_zero_leafs(node: &mut Node) -> (usize, bool) {
+    if node.solved {
+        return (0, true);
+    }
+    if node.children.len() == 0 {
+        node.flow = 1;
+        node.solved = true;
+        return (1, true);
+    }
+
+    let children_sum = node.sum_children();
+    // find leafs
+    let mut zero_leafs = 0;
+    for mut child in &mut node.children {
+        let (tmp_zero_leafs, tmp_solvable) = solve_zero_leafs(&mut child);
+        if !tmp_solvable {
+            return (0, false);
+        }
+        zero_leafs += tmp_zero_leafs;
+    }
+
+    if node.flow == 0 {
+        return (zero_leafs, true);
+    }
+
+    if node.flow as isize - children_sum as isize != zero_leafs as isize {
+        return (zero_leafs, false);
+    }
+    // it is possible to solve this
+
+    solve_tree(node);
+    return (0, true);
 }
 
 fn solve_tree(node: &mut Node) -> bool {
@@ -85,6 +121,24 @@ fn solve_tree(node: &mut Node) -> bool {
             node.solved = false;
             return false;
         },
+        //(_, true) => {
+        //    let sum = node.sum_children();
+        //    let zero_children_iter = node.children.iter_mut().filter(|child| child.flow == 0);
+        //    let zero_children: Vec<&mut Box<Node>> = zero_children_iter.collect();
+        //    //println!("{:?}", zero_children);
+        //    if diff_children_solved == zero_children.len() && node.flow - sum == zero_children.len() {
+        //        for mut child in zero_children {
+        //            child.flow = 1;
+        //            if !solve_tree(child) {
+        //                return false;
+        //            }
+        //            child.solved = true;
+        //        }
+        //        node.solved = true;
+        //        return true;
+        //    }
+        //    return false;
+        //},
         _ => return false,
     }
 }
@@ -132,8 +186,11 @@ fn main() {
     }
 
     if !solve_tree(&mut boxed_root) {
-        println!("impossible");
-        return ();
+        let (_, solved) = solve_zero_leafs(&mut boxed_root);
+        if !solved {
+            println!("impossible");
+            return ();
+        }
     }
 
     unsafe {
