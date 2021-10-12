@@ -107,3 +107,7 @@ venv.bak/
 /bin
 
 *.exe
+
+# Added by cargo
+
+/target
