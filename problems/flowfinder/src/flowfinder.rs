@@ -47,13 +47,13 @@ fn solve_zero_leafs(node: &mut Node) -> (usize, bool) {
         return (zero_leafs, true);
     }
 
-    if node.flow as isize - children_sum as isize != zero_leafs as isize {
+    if node.flow as isize - (children_sum as isize) != zero_leafs as isize {
         return (zero_leafs, false);
     }
     // it is possible to solve this
 
-    solve_tree(node);
-    return (0, true);
+    
+    return (0, solve_tree(node));
 }
 
 fn solve_tree(node: &mut Node) -> bool {
@@ -187,7 +187,7 @@ fn main() {
 
     if !solve_tree(&mut boxed_root) {
         let (_, solved) = solve_zero_leafs(&mut boxed_root);
-        if !solved {
+        if !solved || !boxed_root.solved {
             println!("impossible");
             return ();
         }
